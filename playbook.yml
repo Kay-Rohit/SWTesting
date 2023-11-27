@@ -1,0 +1,41 @@
+---
+- hosts: localhost
+  vars:
+      docker_compose_version: "1.29.2"
+      project_name : "WhatAMess"
+
+  tasks:
+    # Copy Docker Compose file
+    - name: Copy Docker Compose file
+      copy:
+        src: docker-compose.yml
+        dest: ./
+        
+    # Copy encrypted file and ansible-vault password file to decrypt at the target machine
+    - name: Copy excrypted credentials file
+      copy:
+        src: encrypt.txt
+        dest: ./
+        
+    # Copy ansible-vault password file
+    - name: Copy ansible-vault password file
+      copy:
+        src: password.txt
+        dest: ./
+
+    # Set environment variable on target machine to be fetched and used by docker containers to expose frontend to host ip
+    # The below command will create an env variable name DOCKER_HOST_IP containing the IP address 
+    - name: Set environment variable to expose ip address to the docker Containers
+      shell: export DOCKER_HOST_IP=$(ip route get 1.1.1.1 | awk '{print $7}')
+
+    - name: Decrypt the password and store it in .env file
+      shell: ansible-vault decrypt --vault-password-file=password.txt encrypt.txt --output=.env
+
+    # Pull Docker images and Start Containers using compose file
+    - name: Run docker compose up command
+      # shell: docker-compose up
+      become: true
+      docker_compose:
+        project_src: ./
+        state: present
+        pull: yes

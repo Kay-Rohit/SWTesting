@@ -1,0 +1,4 @@
+2023-05-10 00:06:12 [http-nio-5000-exec-3] INFO  c.o.s.controller.MessController - [Get mess profile]
+2023-05-10 00:15:01 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2023-05-10 00:15:01 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2023-05-10 00:15:01 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
