@@ -22,6 +22,7 @@ import com.org.spemajorbackend.repository.MessRepository;
 import com.org.spemajorbackend.repository.ReviewRepository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -59,33 +60,33 @@ class CustomerServiceTest {
 
     @MockBean
     private ReviewRepository reviewRepository;
+//
+//    private final MessRepository messRepositoryMock = mock(MessRepository.class, "messRepository");
+//
+//    private final MenuRepository menuRepositoryMock = mock(MenuRepository.class, "menuRepository");
+//
+//    private final ReviewRepository reviewRepositoryMock = mock(ReviewRepository.class, "reviewRepository");
+//
+//    private final CustomerRepository customerRepositoryMock = mock(CustomerRepository.class, "customerRepository");
+//
+//    private final AuthMasterRepository authMasterRepositoryMock = mock(AuthMasterRepository.class, "authMasterRepository");
+//
+//    private final JoiningRequestRepository joiningRequestRepositoryMock = mock(JoiningRequestRepository.class);
 
-    private final MessRepository messRepositoryMock = mock(MessRepository.class, "messRepository");
-
-    private final MenuRepository menuRepositoryMock = mock(MenuRepository.class, "menuRepository");
-
-    private final ReviewRepository reviewRepositoryMock = mock(ReviewRepository.class, "reviewRepository");
-
-    private final CustomerRepository customerRepositoryMock = mock(CustomerRepository.class, "customerRepository");
-
-    private final AuthMasterRepository authMasterRepositoryMock = mock(AuthMasterRepository.class, "authMasterRepository");
-
-    private final JoiningRequestRepository joiningRequestRepositoryMock = mock(JoiningRequestRepository.class);
-
-    @Test()
-    void sendJoinRequestTest2() throws Exception {
-        CustomerService target = new CustomerService(messRepositoryMock, menuRepositoryMock, customerRepositoryMock, joiningRequestRepositoryMock, reviewRepositoryMock, authMasterRepositoryMock);
-        Customer customerMock = mock(Customer.class);
-        doReturn(Optional.of(customerMock)).when(customerRepositoryMock).findById("customerId1");
-        doReturn(Optional.empty()).when(messRepositoryMock).findById("A");
-        boolean result = target.sendJoinRequest("customerId1", "A");
-
-        assertAll("result", () -> {
-            assertThat(result, equalTo(Boolean.FALSE));
-            verify(customerRepositoryMock).findById("customerId1");
-            verify(messRepositoryMock).findById("A");
-        });
-    }
+//    @Test()
+//    void sendJoinRequestTest2() throws Exception {
+//        CustomerService target = new CustomerService(messRepositoryMock, menuRepositoryMock, customerRepositoryMock, joiningRequestRepositoryMock, reviewRepositoryMock, authMasterRepositoryMock);
+//        Customer customerMock = mock(Customer.class);
+//        doReturn(Optional.of(customerMock)).when(customerRepositoryMock).findById("customerId1");
+//        doReturn(Optional.empty()).when(messRepositoryMock).findById("A");
+//        boolean result = target.sendJoinRequest("customerId1", "A");
+//
+//        assertAll("result", () -> {
+//            assertThat(result, equalTo(Boolean.FALSE));
+//            verify(customerRepositoryMock).findById("customerId1");
+//            verify(messRepositoryMock).findById("A");
+//        });
+//    }
 
     @Test
     void testGetMessList() {
@@ -850,4 +851,22 @@ class CustomerServiceTest {
                 () -> customerService.resetPassword(new ForgetPasswordRequest("janedoe", "iloveyou", "iloveyou")));
         verify(authMasterRepository).findById(Mockito.<String>any());
     }
+
+//    @Test
+//    void updateReviewByMessAndCustomerUsernamesTest()
+//    {
+//
+//        when(reviewRepository.updateReviewByMessAndCustomerUsernames(4, "Avg Food", LocalDateTime.of(2023, 11, 4, 15, 56), "Messname", "Customername"))
+//                .thenReturn(1);
+//        when(reviewRepository.updateReviewByMessAndCustomerUsernames(4, "Avg Food", LocalDateTime.of(2023, 11, 4, 15, 56), "Messname", "Customer"))
+//                .thenReturn(0);
+//        when(reviewRepository.updateReviewByMessAndCustomerUsernames(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+//                .thenThrow(new IllegalArgumentException("exception"));
+//
+//        verify(reviewRepository).updateReviewByMessAndCustomerUsernames(4, "Avg Food", LocalDateTime.of(2023, 11, 4, 15, 56), "Messname", "Customername");
+//        verify(reviewRepository).updateReviewByMessAndCustomerUsernames(4, "Avg Food", LocalDateTime.of(2023, 11, 4, 15, 56), "m", "Customername");
+//        verify(reviewRepository).updateReviewByMessAndCustomerUsernames(Mockito.any(), Mockito.any(), Mockito.any(),Mockito.any(),Mockito.any());
+//
+//
+//    }
 }

@@ -1,5 +1,6 @@
 package com.org.spemajorbackend.controller;
 
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,6 +20,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -175,7 +177,6 @@ class CustomerControllerTest {
                                         + "\"6625550144\",\"ownerUsername\":\"janedoe\",\"messname\":\"Messname\",\"ownerFirstname\":\"Jane\",\"ownerLastname\""
                                         + ":\"Doe\",\"ownerPhone\":\"6625550144\",\"address\":\"42 Main St\",\"menus\":[]}"));
     }
-
     @Test
     void testResetPassword() throws Exception {
         when(customerService.resetPassword(Mockito.<ForgetPasswordRequest>any())).thenReturn(true);
@@ -233,6 +234,55 @@ class CustomerControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType("application/json"))
                 .andExpect(MockMvcResultMatchers.content().string("10.0"));
+    }
+
+    @Test
+    void TestCalculateAmountWhenException() throws Exception{
+
+        when(calculatorService.calculateAmount(Mockito.<String>any(), Mockito.<Date>any(), Mockito.<Date>any(), Mockito.<String>any()))
+                .thenThrow(new UsernameNotFoundException("foo"));
+
+        MockHttpServletRequestBuilder contentTypeResult = MockMvcRequestBuilders.get("/customer/calculate-amount")
+                .contentType(MediaType.APPLICATION_JSON);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        MockHttpServletRequestBuilder requestBuilder = contentTypeResult
+                .content(objectMapper.writeValueAsString(new AmountRequest()));
+        MockMvcBuilders.standaloneSetup(customerController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.content().contentType("text/plain;charset=ISO-8859-1"));
+    }
+
+    @Test()
+    void TestGetProfileUserNotFoundException() throws Exception {
+        when(customerService.getProfile("customerId"))
+                .thenThrow(new UsernameNotFoundException("No customer found with username:customerId"));
+
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/customer/get-profile/{customer_id}", "customerId")
+                .contentType(MediaType.APPLICATION_JSON);
+        MockMvcBuilders.standaloneSetup(customerController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.content().contentType("text/plain;charset=ISO-8859-1"))
+                .andExpect(MockMvcResultMatchers.content().string("No customer found with username:customerId"));
+    }
+
+    @Test()
+    void TestAddReviewNotFoundException() throws Exception {
+        when(customerService.getProfile("customerId"))
+                .thenThrow(new UsernameNotFoundException("No customer found with username:customerId"));
+
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/customer/get-profile/{customer_id}", "customerId")
+                .contentType(MediaType.APPLICATION_JSON);
+        MockMvcBuilders.standaloneSetup(customerController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.content().contentType("text/plain;charset=ISO-8859-1"))
+                .andExpect(MockMvcResultMatchers.content().string("No customer found with username:customerId"));
     }
 
 }

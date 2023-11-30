@@ -5,12 +5,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import javax.swing.text.html.Option;
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 public interface MenuRepository extends JpaRepository<Menu, Long> {
     List<Menu> findByMess_Username(String mess_owner_username);
-    Menu findByMess_UsernameAndAndDay(String mess_owner_username, String day);
+    Optional<Menu> findByMess_UsernameAndAndDay(String mess_owner_username, String day);
 
     @Transactional
     @Modifying

@@ -72,9 +72,8 @@ public class RegistrationService {
         catch (Exception e){
 //            System.out.println(e.getMessage());
             logger.info(e.getMessage());
+            return "Some Error occured!!!";
         }
-
-        return "Some Error occured!!!";
     }
 
 
@@ -121,9 +120,10 @@ public class RegistrationService {
         catch (Exception e){
 //            System.out.println(e.getMessage());
             logger.info(e.getMessage());
+            return "Some Error occured!!!";
+
         }
 
-        return "Some Error occured!!!";
     }
 
 

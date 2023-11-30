@@ -41,7 +41,6 @@ public class CustomerService {
     public List<Mess> getMessList() {
 
         List<Mess> messes = new ArrayList<Mess>();
-//        List<Menu> allreviews = new ArrayList<Menu>();
 
         messRepository.findAll().forEach(
                 mess -> messes.add(mess)
@@ -102,7 +101,6 @@ public class CustomerService {
             return true;
         }
         catch (Exception e){
-//            System.out.println(e.getMessage());
             logger.info(e.getMessage());
         }
         return false;
@@ -112,54 +110,39 @@ public class CustomerService {
         Customer customer = customerRepository.findById(customerId).orElseThrow(
                 () -> new UsernameNotFoundException("No customer found with username:"+customerId)
         );
-//        System.out.println("customer fetched with username "+customer.getUsername());
         logger.info("customer fetched with username "+customer.getUsername());
 
         //check if there is mess assigned to a customer or not
-//        System.out.println(customer.getMess());
         logger.info(customer.getMess());
-        if(customer.getMess() != null){
+        CustomerProfileResponse response = new CustomerProfileResponse();
+        if(customer.getMess()!=null){
             Mess assignedMess = messRepository.findById(customer.getMess().getUsername()).get();
-//            System.out.println("mess fetched"+ assignedMess.getMessname());
             logger.info("mess fetched"+ assignedMess.getMessname());
             List<Menu> menus = menuRepository.findByMess_Username(customer.getMess().getUsername());
 
-            CustomerProfileResponse response =
-                    new CustomerProfileResponse(
-                            customer.getUsername(),
-                            customer.getFirstname(),
-                            customer.getLastname(),
-                            customer.getEmail(),
-                            customer.getPhone(),
-                            assignedMess.getUsername(),
-                            assignedMess.getMessname(),
-                            assignedMess.getFirstname(),
-                            assignedMess.getLastname(),
-                            assignedMess.getPhone(),
-                            assignedMess.getAddress(),
-                            menus
-                    );
-            return response;
+            response.setUsername(customer.getUsername());
+            response.setFirstname(customer.getFirstname());
+            response.setLastname(customer.getLastname());
+            response.setEmail(customer.getEmail());
+            response.setPhone(customer.getPhone());
+            response.setOwnerUsername(assignedMess.getUsername());
+            response.setMessname(assignedMess.getMessname());
+            response.setOwnerFirstname(assignedMess.getFirstname());
+            response.setOwnerLastname(assignedMess.getLastname());
+            response.setOwnerPhone(assignedMess.getPhone());
+            response.setAddress(assignedMess.getAddress());
+            response.setMenus(menus);
+
         }
         else{
-//            System.out.println("Inside else");
-            CustomerProfileResponse response =
-                    new CustomerProfileResponse(
-                            customer.getUsername(),
-                            customer.getFirstname(),
-                            customer.getLastname(),
-                            customer.getEmail(),
-                            customer.getPhone(),
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null
-                    );
-            return response;
+            response.setUsername(customer.getUsername());
+            response.setFirstname(customer.getFirstname());
+            response.setLastname(customer.getLastname());
+            response.setEmail(customer.getEmail());
+            response.setPhone(customer.getPhone());
         }
+
+        return response;
     }
 
     public boolean resetPassword(ForgetPasswordRequest forgetPasswordRequest) {
@@ -169,7 +152,8 @@ public class CustomerService {
                 () -> new UsernameNotFoundException("No customer found with username:"+username)
         );
 //        checking if existing password matched with send old password
-        if(authuser.getPassword()==passwordEncoder.encode(forgetPasswordRequest.getOldPassword())){
+        if(passwordEncoder.matches(forgetPasswordRequest.getOldPassword(), authuser.getPassword()))
+        {
             authMasterRepository.save(
                     new AuthMaster(
                             authuser.getUsername(),
@@ -177,10 +161,10 @@ public class CustomerService {
                             authuser.getRole()
                     )
             );
+            return true;
         }
         else{
             return false;
         }
-        return true;
     }
 }

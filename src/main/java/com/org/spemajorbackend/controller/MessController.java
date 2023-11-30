@@ -63,8 +63,6 @@ public class MessController {
         logger.info("[Get mess profile]");
         try {
             ResponseEntity<?> details = messService.getOwnerDetails(owner_id);
-            if(details.equals(null))
-                return ResponseEntity.unprocessableEntity().body("Error");
             return details;
         }
         catch (Exception e)
@@ -95,16 +93,15 @@ public class MessController {
     }
 
     @GetMapping("/total-balance/{owner_id}")
-    public ResponseEntity<AmountBalancesResponse> amountBalance(@NotNull @PathVariable String owner_id){
+    public ResponseEntity<?> amountBalance(@NotNull @PathVariable String owner_id){
         try{
             AmountBalancesResponse amountBalancesResponse = calculatorService.calculateTotal(owner_id);
             return ResponseEntity.ok().body(amountBalancesResponse);
         }
         catch (Exception e)
         {
-            ResponseEntity.unprocessableEntity().body(e.getMessage());
+            return ResponseEntity.unprocessableEntity().body(e.getMessage());
         }
-        return ResponseEntity.badRequest().body(new AmountBalancesResponse(0.0, 0.0, 0.0));
     }
 
 }

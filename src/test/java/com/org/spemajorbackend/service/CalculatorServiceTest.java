@@ -264,18 +264,61 @@ class CalculatorServiceTest {
         assertThrows(IllegalArgumentException.class, () -> calculatorService.calculateBMI(10.0d, 0.0d));
     }
 
-    @Test()
+    @Test
+    void calculateAmountIllegalArgumentException() {
+        Date startDate = new Date(2023, 11, 12);
+        Date endDate = new Date(2023, 11, 1);
+
+        assertThrows(IllegalArgumentException.class, () -> calculatorService.calculateAmount("ownerId", startDate, endDate, "customerId"));
+    }
+
+    @Test
     void calculateAmountWhenStartDateNotAfterEndDateThrowsUsernameNotFoundException() {
-        CalculatorService target = new CalculatorService(messRepository, customerRepository);
         doReturn(Optional.empty()).when(messRepository).findById("A");
         Date date = new Date();
         Date date2 = new Date();
         final UsernameNotFoundException result = assertThrows(UsernameNotFoundException.class, () -> {
-            target.calculateAmount("A", date, date2, "customerID1");
+            calculatorService.calculateAmount("A", date, date2, "customerId");
         });
         assertAll("result", () -> {
             assertThat(result, is(notNullValue()));
             verify(messRepository).findById("A");
         });
+    }
+
+    @Test
+    void calculateAmountWhenStartDateNotAfterEndDateThrowsUsernameNotFoundException2() {
+
+        Mess mess2 = new Mess();
+        mess2.setAboutSundays("About Sundays");
+        mess2.setAddress("42 Main St");
+        mess2.setBreakfast(true);
+        mess2.setCustomers(new ArrayList<>());
+        mess2.setFirstname("Jane");
+        mess2.setLastname("Doe");
+        mess2.setLatitude("Latitude");
+        mess2.setLongitude("Longitude");
+        mess2.setMenus(new ArrayList<>());
+        mess2.setMessname("Messname");
+        mess2.setPhone("6625550144");
+        mess2.setPricing("42");
+        mess2.setReviews(new ArrayList<>());
+        mess2.setService("Service");
+        mess2.setTrial(true);
+        mess2.setType("Type");
+        mess2.setUsername("janedoe");
+        Optional<Mess> ofResult = Optional.of(mess2);
+
+        doReturn(Optional.empty()).when(customerRepository).findById("customerId");
+        doReturn(ofResult).when(messRepository).findById("ownerId");
+
+        Date startDate = new Date(2023, 11, 1);
+        Date endDate = new Date(2023, 11, 12);
+
+        assertThrows(UsernameNotFoundException.class, () -> calculatorService.calculateAmount("ownerId", startDate, endDate, "customerId"));
+
+        verify(messRepository).findById("ownerId");
+        verify(customerRepository).findById("customerId");
+
     }
 }

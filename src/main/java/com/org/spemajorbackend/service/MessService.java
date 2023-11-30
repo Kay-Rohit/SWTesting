@@ -24,7 +24,6 @@ public class MessService {
     private final MenuRepository menuRepository;
     private final CustomerRepository customerRepository;
     private final JoiningRequestRepository requestRepository;
-
     private final ReviewRepository reviewRepository;
     private static final Logger logger = LogManager.getLogger(MessService.class);
 
@@ -42,10 +41,9 @@ public class MessService {
         );
         try{
             for (AddMenuRequest menuItem : menuItems) {
-
-                Menu existingDayMenu = menuRepository.findByMess_UsernameAndAndDay(mess_owner_username, menuItem.getDay());
+                Optional<Menu> existingDayMenu = menuRepository.findByMess_UsernameAndAndDay(mess_owner_username, menuItem.getDay());
 //                save menu only if there is no menu item on that day available
-                if(existingDayMenu == null){
+                if(existingDayMenu.isEmpty()){
                     Menu menu = new Menu(
                             menuItem.getDay(),
                             menuItem.getBreakfast(),
@@ -53,10 +51,7 @@ public class MessService {
                             menuItem.getDinner()
                     );
                     menu.setMess(mess);
-//                    if(menu.getMess().getMessname().equals(null))
-//                        throw new IllegalStateException("mess not set");
-//                    else
-                        menuRepository.save(menu);
+                    menuRepository.save(menu);
                 }
                 //else update
                 else{
@@ -110,7 +105,6 @@ public class MessService {
 
     public ResponseEntity<?> getOwnerDetails(String owner_id)
     {
-//        Optional<Mess> owner = messRepository.findById(owner_id);
         Mess owner = messRepository.findById(owner_id).orElseThrow(
                 () -> new UsernameNotFoundException("Sorry no mess found owned by:"+owner_id)
         );
@@ -119,8 +113,7 @@ public class MessService {
             List<Menu> menus = menuRepository.findByMess_Username(owner_id);
             List<Customer> customers = customerRepository.findByMess_Username(owner_id);
             List<Review> reviews = reviewRepository.findByMess_Username(owner_id);
-
-
+            
             owner.setMenus(menus);
             owner.setCustomers(customers);
             owner.setReviews(reviews);
@@ -128,7 +121,7 @@ public class MessService {
         catch(Exception e){
             throw new RuntimeException("Employee is not found for the id"+owner_id);
         }
-        return ResponseEntity.ok(owner);
+        return ResponseEntity.ok().body(owner);
 
     }
 

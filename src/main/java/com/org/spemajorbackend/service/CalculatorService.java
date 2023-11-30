@@ -66,10 +66,7 @@ public class CalculatorService {
             Double paid=0.0;
             for(Customer c: customers)
             {
-//                if(c.getPaid())
                     paid = paid + (double) pricingPerMonth;
-//                else
-//                    paid = paid + 0.0;
             }
 
             Double rem = total - paid;

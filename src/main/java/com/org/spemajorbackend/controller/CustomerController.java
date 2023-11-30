@@ -77,7 +77,6 @@ public class CustomerController {
         catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
-//        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/reset-password")

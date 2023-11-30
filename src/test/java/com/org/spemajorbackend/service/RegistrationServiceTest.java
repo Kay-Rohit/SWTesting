@@ -70,6 +70,23 @@ class RegistrationServiceTest {
         assertEquals("Username already taken!", actualRegisterCustomerResult);
     }
 
+    @Test
+    void TestRegisterCustomerIllegalArgumentException()
+    {
+        when(authMasterRepository.findById(Mockito.any())).thenThrow(new IllegalArgumentException("foo"));
+        CustomerRegRequest request = new CustomerRegRequest();
+        request.setEmail("jane.doe@example.org");
+        request.setFirstname("Jane");
+        request.setLastname("Doe");
+        request.setPassword("iloveyou");
+        request.setPhone("6625550144");
+        request.setUsername("janedoe");
+        String result = registrationService.registerCustomer(request);
+
+        assertEquals("Some Error occured!!!", result);
+
+    }
+
 
     @Test
     void testRegisterCustomer2() {
@@ -154,6 +171,32 @@ class RegistrationServiceTest {
         String actualRegisterMessResult = registrationService.registerMess(request);
         verify(authMasterRepository).findById(Mockito.<String>any());
         assertEquals("Username already taken!", actualRegisterMessResult);
+    }
+
+    @Test
+    void TestRegisterMessIllegalArgumentException()
+    {
+        when(authMasterRepository.findById(Mockito.any())).thenThrow(new IllegalArgumentException("foo"));
+        MessRegRequest request = new MessRegRequest();
+        request.setAboutSundays("About Sundays");
+        request.setAddress("42 Main St");
+        request.setBreakfast(true);
+        request.setFirstname("Jane");
+        request.setLastname("Doe");
+        request.setLatitude("Latitude");
+        request.setLongitude("Longitude");
+        request.setMessname("Messname");
+        request.setPassword("iloveyou");
+        request.setPhone("6625550144");
+        request.setPricing("Pricing");
+        request.setService("Service");
+        request.setTrial(true);
+        request.setType("Type");
+        request.setUsername("janedoe");
+        String result = registrationService.registerMess(request);
+
+        assertEquals("Some Error occured!!!", result);
+
     }
 
 

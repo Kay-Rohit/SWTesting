@@ -22,14 +22,10 @@ public class CalculatorController {
     @GetMapping("/bmi")
     public ResponseEntity<?> calculateBMI(@RequestBody BMI bmi) {
         try {
-            if (bmi.getHeight() <= 0 || bmi.getWeight() <= 0) {
-                return ResponseEntity.badRequest().body("Please pass valid height and weight");
-            }
-
             Double myBMI = calculatorService.calculateBMI(bmi.getHeight(), bmi.getWeight());
             return ResponseEntity.ok(myBMI);
-        } catch (Exception e) {
-//            System.out.println("Exception caught:" + e.getMessage());
+        }
+        catch (Exception e) {
             logger.info("Exception caught: " + e.getMessage());
             return ResponseEntity.badRequest().body(e.getMessage());
         }

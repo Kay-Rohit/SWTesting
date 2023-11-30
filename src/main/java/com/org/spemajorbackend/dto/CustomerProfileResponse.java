@@ -3,10 +3,12 @@ package com.org.spemajorbackend.dto;
 import com.org.spemajorbackend.entity.Menu;
 import com.org.spemajorbackend.entity.Mess;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
+@NoArgsConstructor
 public class CustomerProfileResponse {
     private String username;
     private String firstname;

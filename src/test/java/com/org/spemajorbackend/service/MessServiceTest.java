@@ -4,13 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.anyBoolean;
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import com.org.spemajorbackend.dro.AddMenuRequest;
 import com.org.spemajorbackend.dro.UpdateMessDetails;
@@ -31,8 +25,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -72,23 +70,27 @@ class MessServiceTest {
         mess.setMenus(new ArrayList<>());
         mess.setMessname("Messname");
         mess.setPhone("6625550144");
-        mess.setPricing("Pricing");
+        mess.setPricing("2000");
         mess.setReviews(new ArrayList<>());
         mess.setService("Service");
         mess.setTrial(true);
         mess.setType("Type");
         mess.setUsername("janedoe");
-        Optional<Mess> ofResult = Optional.of(mess);
-        when(messRepository.findById(Mockito.<String>any())).thenReturn(ofResult);
+
+        Optional<Mess> result = Optional.of(mess);
+        when(messRepository.findById(Mockito.<String>any())).thenReturn(result);
+
         boolean actualAddMenuItemsResult = messService.addMenuItems(new ArrayList<>(), "janedoe");
+
         verify(messRepository).findById(Mockito.<String>any());
         assertTrue(actualAddMenuItemsResult);
     }
 
     @Test
-    void testAddMenuItems2() {
+    void testAddMenuItemsUsernameNotFoundException() {
         Optional<Mess> emptyResult = Optional.empty();
         when(messRepository.findById(Mockito.<String>any())).thenReturn(emptyResult);
+
         assertThrows(UsernameNotFoundException.class, () -> messService.addMenuItems(new ArrayList<>(), "janedoe"));
         verify(messRepository).findById(Mockito.<String>any());
     }
@@ -142,9 +144,10 @@ class MessServiceTest {
         menu.setId(1L);
         menu.setLunch("Lunch");
         menu.setMess(mess2);
+        Optional<Menu> ofResult2 = Optional.of(menu);
         when(menuRepository.updateMenuByDay(Mockito.<String>any(), Mockito.<String>any(), Mockito.<String>any(),
                 Mockito.<String>any(), Mockito.<String>any())).thenReturn(1);
-        when(menuRepository.findByMess_UsernameAndAndDay(Mockito.<String>any(), Mockito.<String>any())).thenReturn(menu);
+        when(menuRepository.findByMess_UsernameAndAndDay(Mockito.<String>any(), Mockito.<String>any())).thenReturn(ofResult2);
 
         AddMenuRequest addMenuRequest = new AddMenuRequest();
         addMenuRequest.setBreakfast("Breakfast");
@@ -174,7 +177,7 @@ class MessServiceTest {
         mess.setLatitude("Latitude");
         mess.setLongitude("Longitude");
         mess.setMenus(new ArrayList<>());
-        mess.setMessname("Messname");
+        mess.setMessname("john");
         mess.setPhone("6625550144");
         mess.setPricing("Pricing");
         mess.setReviews(new ArrayList<>());
@@ -206,31 +209,104 @@ class MessServiceTest {
 
         Menu menu = new Menu();
         menu.setBreakfast("Breakfast");
-        menu.setDay("Day");
+        menu.setDay("Monday");
         menu.setDinner("Dinner");
         menu.setId(1L);
         menu.setLunch("Lunch");
-        menu.setMess(mess2);
+        menu.setMess(mess);
+        Optional<Menu> ofResult2 = Optional.of(menu);
+
         when(menuRepository.updateMenuByDay(Mockito.<String>any(), Mockito.<String>any(), Mockito.<String>any(),
                 Mockito.<String>any(), Mockito.<String>any())).thenThrow(new RuntimeException("foo"));
-        when(menuRepository.findByMess_UsernameAndAndDay(Mockito.<String>any(), Mockito.<String>any())).thenReturn(menu);
+
+        when(menuRepository.findByMess_UsernameAndAndDay(Mockito.any(), Mockito.any())).thenReturn(ofResult2);
 
         AddMenuRequest addMenuRequest = new AddMenuRequest();
         addMenuRequest.setBreakfast("Breakfast");
-        addMenuRequest.setDay("Day");
+        addMenuRequest.setDay("Monday");
         addMenuRequest.setDinner("Dinner");
         addMenuRequest.setLunch("Lunch");
 
         ArrayList<AddMenuRequest> menuItems = new ArrayList<>();
         menuItems.add(addMenuRequest);
-        boolean actualAddMenuItemsResult = messService.addMenuItems(menuItems, "janedoe");
+
+        boolean actualAddMenuItemsResult1 = messService.addMenuItems(menuItems, Mockito.any());
+
         verify(menuRepository).findByMess_UsernameAndAndDay(Mockito.<String>any(), Mockito.<String>any());
         verify(menuRepository).updateMenuByDay(Mockito.<String>any(), Mockito.<String>any(), Mockito.<String>any(),
                 Mockito.<String>any(), Mockito.<String>any());
         verify(messRepository).findById(Mockito.<String>any());
-        assertFalse(actualAddMenuItemsResult);
+
+        assertFalse(actualAddMenuItemsResult1);
     }
 
+
+    @Test
+    void testAddMenuItemsCheckNull() {
+        Mess mess = new Mess();
+        mess.setAboutSundays("About Sundays");
+        mess.setAddress("42 Main St");
+        mess.setBreakfast(true);
+        mess.setCustomers(new ArrayList<>());
+        mess.setFirstname("Jane");
+        mess.setLastname("Doe");
+        mess.setLatitude("Latitude");
+        mess.setLongitude("Longitude");
+        mess.setMenus(new ArrayList<>());
+        mess.setMessname("john");
+        mess.setPhone("6625550144");
+        mess.setPricing("Pricing");
+        mess.setReviews(new ArrayList<>());
+        mess.setService("Service");
+        mess.setTrial(true);
+        mess.setType("Type");
+        mess.setUsername("janedoe");
+
+        Optional<Mess> ofResult = Optional.of(mess);
+        when(messRepository.findById(Mockito.any())).thenReturn(ofResult);
+        Optional<Menu> emptyResult = Optional.empty();
+        when(menuRepository.findByMess_UsernameAndAndDay(Mockito.any(), Mockito.any())).thenReturn(emptyResult);
+
+
+        Menu menu = new Menu();
+        menu.setBreakfast("Breakfast");
+        menu.setDay("Monday");
+        menu.setDinner("Dinner");
+        menu.setId(1L);
+        menu.setLunch("Lunch");
+        menu.setMess(mess);
+
+
+        AddMenuRequest addMenuRequest = new AddMenuRequest(
+                "Breakfast",
+                "Monday",
+                "Dinner",
+                "Lunch"
+        );
+        ArrayList<AddMenuRequest> menuItems = new ArrayList<>();
+        menuItems.add(addMenuRequest);
+
+        menu.setMess(mess);
+        assertEquals(menu.getMess(), mess);
+
+        when(menuRepository.save(menu)).thenReturn(menu);
+
+        boolean actualAddMenuItemsResult1 = messService.addMenuItems(menuItems, "janedoe");
+
+        verify(menuRepository).findByMess_UsernameAndAndDay(Mockito.<String>any(), Mockito.<String>any());
+        verify(messRepository).findById(Mockito.<String>any());
+
+        assertTrue(actualAddMenuItemsResult1);
+    }
+
+    @Test
+    void testAcceptRequestUsernameNotFoundException(){
+        Optional<Customer> emptyResult = Optional.empty();
+        when(customerRepository.findById(Mockito.<String>any())).thenReturn(emptyResult);
+
+        assertThrows(UsernameNotFoundException.class, () -> messService.acceptRequest("ownerId", "customerId"));
+        verify(customerRepository).findById(Mockito.<String>any());
+    }
     @Test
     void testAcceptRequest() {
         Mess mess = new Mess();
@@ -330,17 +406,22 @@ class MessServiceTest {
         customer2.setPaid(true);
         customer2.setPhone("6625550144");
         customer2.setUsername("janedoe");
-        when(customerRepository.save(Mockito.<Customer>any())).thenReturn(customer2);
+
+
+        when(customerRepository.save(Mockito.any())).thenReturn(customer2);
         when(customerRepository.findById(Mockito.<String>any())).thenReturn(ofResult2);
         when(joiningRequestRepository.findByCustomer_Username(Mockito.<String>any())).thenReturn(new ArrayList<>());
         doNothing().when(joiningRequestRepository).deleteAll(Mockito.<Iterable<JoiningRequest>>any());
+
         ResponseEntity<?> actualAcceptRequestResult = messService.acceptRequest("42", "42");
+
         verify(joiningRequestRepository).findByCustomer_Username(Mockito.<String>any());
         verify(joiningRequestRepository).deleteAll(Mockito.<Iterable<JoiningRequest>>any());
         verify(customerRepository).findById(Mockito.<String>any());
         verify(messRepository).findById(Mockito.<String>any());
-        verify(customerRepository).save(Mockito.<Customer>any());
+        verify(customerRepository).save(Mockito.any());
         verify(messRepository).save(Mockito.<Mess>any());
+
         assertEquals("Request Accepted Successfully", actualAcceptRequestResult.getBody());
         assertEquals(HttpStatus.OK, actualAcceptRequestResult.getStatusCode());
         assertTrue(actualAcceptRequestResult.getHeaders().isEmpty());
@@ -490,6 +571,15 @@ class MessServiceTest {
         verify(messRepository).findById((String) Mockito.any());
     }
 
+
+    @Test
+    void testUpdateOwnerDetailsUsernameNotFoundException() {
+        Optional<Mess> emptyResult = Optional.empty();
+        when(messRepository.findById(Mockito.<String>any())).thenReturn(emptyResult);
+
+        assertThrows(UsernameNotFoundException.class, () -> messService.updateOwnerDetails("ownerId", new UpdateMessDetails()));
+        verify(messRepository).findById(Mockito.<String>any());
+    }
     @Test
     void testUpdateOwnerDetails() {
         Mess mess = new Mess();
@@ -529,7 +619,7 @@ class MessServiceTest {
         mess2.setService("Service");
         mess2.setTrial(true);
         mess2.setType("Type");
-        mess2.setUsername("janedoe");
+        mess2.setUsername("janedoe2");
         when(messRepository.save(Mockito.<Mess>any())).thenReturn(mess2);
         when(messRepository.findById(Mockito.<String>any())).thenReturn(ofResult);
 
@@ -544,9 +634,12 @@ class MessServiceTest {
         mess3.setService("Service");
         mess3.setTrial(true);
         mess3.setType("Type");
-        ResponseEntity<?> actualUpdateOwnerDetailsResult = messService.updateOwnerDetails("Owner id", mess3);
+
+        ResponseEntity<?> actualUpdateOwnerDetailsResult = messService.updateOwnerDetails("janedoe", mess3);
+
         verify(messRepository).findById(Mockito.<String>any());
         verify(messRepository).save(Mockito.<Mess>any());
+
         assertEquals("42 Main St", ((Mess) actualUpdateOwnerDetailsResult.getBody()).getAddress());
         assertEquals("6625550144", ((Mess) actualUpdateOwnerDetailsResult.getBody()).getPhone());
         assertEquals("Latitude", ((Mess) actualUpdateOwnerDetailsResult.getBody()).getLatitude());
@@ -562,6 +655,7 @@ class MessServiceTest {
         assertTrue(actualUpdateOwnerDetailsResult.getHeaders().isEmpty());
     }
 
+//    @Disabled
     @Test
     void testUpdateOwnerDetails2() {
         Mess mess = new Mess();
@@ -602,6 +696,7 @@ class MessServiceTest {
         verify(messRepository).save(Mockito.<Mess>any());
     }
 
+//    @Disabled
     @Test
     void testUpdateOwnerDetails3() {
         Mess mess = mock(Mess.class);
@@ -986,5 +1081,64 @@ class MessServiceTest {
         assertEquals("Request deleted", actualRejectRequestResult.getBody());
         assertEquals(HttpStatus.BAD_REQUEST, actualRejectRequestResult.getStatusCode());
         assertTrue(actualRejectRequestResult.getHeaders().isEmpty());
+    }
+
+    @Test
+    void AddMenuItemsTest()
+    {
+        Mess mess = new Mess();
+        mess.setAboutSundays("About Sundays");
+        mess.setAddress("42 Main St");
+        mess.setBreakfast(true);
+        mess.setCustomers(new ArrayList<>());
+        mess.setFirstname("Jane");
+        mess.setLastname("Doe");
+        mess.setLatitude("Latitude");
+        mess.setLongitude("Longitude");
+        mess.setMenus(new ArrayList<>());
+        mess.setMessname("Messname");
+        mess.setPhone("6625550144");
+        mess.setPricing("2000");
+        mess.setReviews(new ArrayList<>());
+        mess.setService("Service");
+        mess.setTrial(true);
+        mess.setType("Type");
+        mess.setUsername("janedoe");
+
+        Mess mess2 = new Mess();
+        mess2.setAboutSundays("About Sundays");
+        mess2.setAddress("42 Main St");
+        mess2.setBreakfast(true);
+        mess2.setCustomers(new ArrayList<>());
+        mess2.setFirstname("Jane");
+        mess2.setLastname("Doe");
+        mess2.setLatitude("Latitude");
+        mess2.setLongitude("Longitude");
+        mess2.setMenus(new ArrayList<>());
+        mess2.setMessname("Messname");
+        mess2.setPhone("6625550144");
+        mess2.setPricing("Pricing");
+        mess2.setReviews(new ArrayList<>());
+        mess2.setService("Service");
+        mess2.setTrial(true);
+        mess2.setType("Type");
+        mess2.setUsername("janedoe");
+
+        Menu menu = new Menu(
+                "Monday",
+                "Paratha",
+                "Rice Dal",
+                "Roti Sabzi"
+        );
+
+
+        AddMenuRequest addMenuRequest1 = new AddMenuRequest("monday", "idli", "rice", "puri");
+        AddMenuRequest addMenuRequest2 = new AddMenuRequest("tuesday", "dosa", "rice", "roti");
+
+        List<AddMenuRequest> mylist= new ArrayList<>();
+        mylist.add(addMenuRequest1);
+        mylist.add(addMenuRequest2);
+
+
     }
 }
